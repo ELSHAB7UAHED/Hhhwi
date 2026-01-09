@@ -1,0 +1,76 @@
+# GitHub Actions Workflow for building the ESP32 Remote Control project
+# This workflow uses PlatformIO to compile the firmware.
+
+name: Build ESP32 Firmware
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push events but only for the main/master branch
+  push:
+    branches: [ main, master ]
+  # Triggers the workflow on pull request events to the main/master branch
+  pull_request:
+    branches: [ main, master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # 1. Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Python, which is a dependency for PlatformIO
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      # 3. Install PlatformIO CLI
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade platformio
+
+      # 4. Create a minimal PlatformIO project structure
+      #    This step is crucial because we are not committing a full platformio.ini file.
+      #    We create it dynamically here.
+      - name: Create PlatformIO project files
+        run: |
+          # Create the main project directory structure
+          mkdir -p src
+          
+          # Move the Arduino sketch into the 'src' directory
+          # Note: The main .ino file must be in the 'src' directory for PlatformIO
+          mv esp32_remote_control.ino src/
+          
+          # Create the platformio.ini configuration file
+          echo """
+          [env:esp32dev]
+          platform = espressif32
+          board = esp32dev
+          framework = arduino
+          lib_deps =
+            # Dependency: ESP32 BLE Keyboard library by T-vK
+            T-vK/ESP32 BLE Keyboard
+          monitor_speed = 115200
+          """ > platformio.ini
+
+      # 5. Run PlatformIO build process
+      - name: Build firmware with PlatformIO
+        run: pio run
+
+      # Optional: 6. Upload firmware artifact
+      # This step saves the compiled .bin file so you can download it from the Actions tab.
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32-firmware
+          path: .pio/build/esp32dev/firmware.bin
