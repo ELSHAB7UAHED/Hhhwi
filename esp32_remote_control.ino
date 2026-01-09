@@ -7,7 +7,7 @@
   - Acts as a Bluetooth (BLE) Human Interface Device (HID) keyboard.
   - Can send keystrokes to any paired host (PC, Mac, Linux, Android).
   - Author: Manus
-  - Version: 1.0
+  - Version: 1.1 (Fixed build error)
   ================================================================================
 */
 
@@ -40,7 +40,10 @@ void setup() {
   bleKeyboard.begin();
   Serial.println("[OK] Bluetooth HID Service started.");
   Serial.print("[ACTION] Pair this device. Name: '");
-  Serial.print(bleKeyboard.getDeviceName().c_str());
+  
+  // CORRECTED LINE: Access the 'deviceName' property directly instead of calling a function.
+  Serial.print(bleKeyboard.deviceName.c_str());
+  
   Serial.println("'");
 
   // --- Start Wi-Fi Access Point ---
@@ -162,3 +165,4 @@ void loop() {
   client.stop();
   Serial.println("[NET] Client disconnected.");
 }
+
