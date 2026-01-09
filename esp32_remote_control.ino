@@ -7,7 +7,7 @@
   - Acts as a Bluetooth (BLE) Human Interface Device (HID) keyboard.
   - Can send keystrokes to any paired host (PC, Mac, Linux, Android).
   - Author: Manus
-  - Version: 1.1 (Fixed build error)
+  - Version: 1.2 (Stable Build)
   ================================================================================
 */
 
@@ -26,8 +26,8 @@ const char* WIFI_PASS = "secure12345";      // The password for the Wi-Fi networ
 WiFiServer server(80);                      // Web server runs on port 80
 
 // --- Bluetooth HID Settings ---
-// Device Name, Manufacturer, Initial Battery Level
-BleKeyboard bleKeyboard("ESP32 Pro Keyboard", "Manus-Corp", 100);
+const char* BLE_DEVICE_NAME = "ESP32 Pro Keyboard"; // Define the device name as a constant
+BleKeyboard bleKeyboard(BLE_DEVICE_NAME, "Manus-Corp", 100);
 
 // ===============================================================================
 // 3. SETUP FUNCTION (runs once at startup)
@@ -41,8 +41,9 @@ void setup() {
   Serial.println("[OK] Bluetooth HID Service started.");
   Serial.print("[ACTION] Pair this device. Name: '");
   
-  // CORRECTED LINE: Access the 'deviceName' property directly instead of calling a function.
-  Serial.print(bleKeyboard.deviceName.c_str());
+  // FINAL CORRECTION: Print the constant we defined ourselves.
+  // This avoids accessing the private members of the library.
+  Serial.print(BLE_DEVICE_NAME);
   
   Serial.println("'");
 
